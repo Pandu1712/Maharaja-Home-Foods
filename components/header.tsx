@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
+import { usePathname } from 'next/navigation'
 import { Menu, ShoppingCart } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Sheet, SheetContent, SheetTrigger, SheetTitle } from '@/components/ui/sheet'
@@ -18,35 +19,35 @@ const navLinks = [
 ]
 
 export function Header() {
+  const pathname = usePathname()
   const [isScrolled, setIsScrolled] = useState(false)
   const [isOpen, setIsOpen] = useState(false)
   const [mounted, setMounted] = useState(false)
 
   const itemCount = useCartStore((state) => state.getItemCount())
 
-  useEffect(() => {
-    setMounted(true)
-  }, [])
+  useEffect(() => setMounted(true), [])
 
   useEffect(() => {
-    const handleScroll = () => setIsScrolled(window.scrollY > 20)
-    window.addEventListener('scroll', handleScroll)
-    return () => window.removeEventListener('scroll', handleScroll)
+    const onScroll = () => setIsScrolled(window.scrollY > 10)
+    window.addEventListener('scroll', onScroll)
+    return () => window.removeEventListener('scroll', onScroll)
   }, [])
 
   return (
     <header
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-        isScrolled
-          ? 'bg-card/95 backdrop-blur-md shadow-md'
-          : 'bg-accent/70'
-      }`}
+      className={`fixed top-0 inset-x-0 z-50
+        transform transition-all duration-500 ease-out
+        ${isScrolled
+          ? 'bg-card/95 backdrop-blur-md shadow-sm translate-y-0 opacity-100'
+          : 'bg-background/80 translate-y-0 opacity-100'}
+      `}
     >
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="flex h-20 items-center justify-between">
-          {/* Logo */}
+      <div className="mx-auto max-w-7xl px-4">
+        <div className="flex h-16 md:h-20 items-center justify-between">
+          {/* LOGO */}
           <Link href="/" className="flex items-center gap-3">
-            <div className="relative h-14 w-14 overflow-hidden rounded-full border-2 border-accent">
+            <div className="relative h-10 w-10 md:h-14 md:w-14 overflow-hidden rounded-full border border-accent">
               <Image
                 src="/images/logo.jpg"
                 alt="Maharaja Home Foods"
@@ -55,92 +56,105 @@ export function Header() {
                 priority
               />
             </div>
-            <div className="hidden sm:block">
-              <h1 className="font-sans text-lg font-bold text-primary">
+
+            {/* Desktop text only */}
+            <div className="hidden md:block">
+              <h1 className="font-[var(--font-playfair)] text-lg font-bold text-primary">
                 Maharaja
               </h1>
               <p className="text-xs text-muted-foreground">Home Foods</p>
             </div>
           </Link>
 
-          {/* Desktop Navigation */}
+          {/* DESKTOP NAV */}
           <nav className="hidden md:flex items-center gap-8">
-            {navLinks.map((link) => (
-              <Link
-                key={link.href}
-                href={link.href}
-                className="text-sm font-medium text-foreground hover:text-primary transition-colors relative group"
-              >
-                {link.label}
-                <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-accent transition-all group-hover:w-full" />
-              </Link>
-            ))}
+            {navLinks.map((link) => {
+              const isActive = pathname === link.href
+              return (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  className={`relative text-sm font-medium transition-colors
+                    ${isActive ? 'text-primary' : 'text-foreground hover:text-primary'}
+                  `}
+                >
+                  {link.label}
+                  <span
+                    className={`absolute -bottom-1 left-0 h-0.5 bg-primary transition-all duration-300
+                      ${isActive ? 'w-full' : 'w-0 group-hover:w-full'}
+                    `}
+                  />
+                </Link>
+              )
+            })}
           </nav>
 
-          {/* Cart + Mobile */}
-          <div className="flex items-center gap-4">
+          {/* RIGHT ACTIONS */}
+          <div className="flex items-center gap-2 md:gap-4">
+            {/* CART */}
             <Link href="/cart">
               <Button
-                variant="outline"
+                variant="ghost"
                 size="icon"
-                className="relative border-primary/20 hover:bg-primary hover:text-primary-foreground bg-transparent"
+                className="relative"
+                aria-label="Cart"
               >
                 <ShoppingCart className="h-5 w-5" />
-
-                {/* ✅ Hydration-safe cart count */}
                 {mounted && itemCount > 0 && (
-                  <span className="absolute -top-2 -right-2 h-5 w-5 rounded-full bg-accent text-xs font-bold text-accent-foreground flex items-center justify-center">
+                  <span className="absolute -top-1.5 -right-1.5 h-5 w-5 rounded-full bg-primary text-xs font-bold text-primary-foreground flex items-center justify-center">
                     {itemCount}
                   </span>
                 )}
-
-                <span className="sr-only">Shopping Cart</span>
               </Button>
             </Link>
 
-            {/* Mobile Menu */}
+            {/* MOBILE MENU */}
             <Sheet open={isOpen} onOpenChange={setIsOpen}>
               <SheetTrigger asChild className="md:hidden">
                 <Button variant="ghost" size="icon">
                   <Menu className="h-6 w-6" />
-                  <span className="sr-only">Open menu</span>
                 </Button>
               </SheetTrigger>
 
-              <SheetContent side="right" className="w-[280px] bg-card">
-                <SheetTitle className="sr-only">Navigation Menu</SheetTitle>
+              <SheetContent side="right" className="w-72 bg-card">
+                <SheetTitle className="sr-only">Menu</SheetTitle>
 
-                <div className="flex flex-col gap-6 mt-8">
-                  <div className="flex items-center gap-3 pb-4 border-b border-border">
-                    <div className="relative h-12 w-12 overflow-hidden rounded-full">
+                <div className="mt-6 space-y-6">
+                  {/* Mobile Header */}
+                  <div className="flex items-center gap-3 border-b pb-4">
+                    <div className="relative h-10 w-10 rounded-full overflow-hidden">
                       <Image
                         src="/images/logo.jpg"
-                        alt="Maharaja Home Foods"
+                        alt="Logo"
                         fill
                         className="object-cover"
                       />
                     </div>
                     <div>
-                      <h2 className="font-sans font-bold text-primary">
-                        Maharaja
-                      </h2>
-                      <p className="text-xs text-muted-foreground">
-                        Home Foods
-                      </p>
+                      <p className="font-bold text-primary">Maharaja</p>
+                      <p className="text-xs text-muted-foreground">Home Foods</p>
                     </div>
                   </div>
 
-                  <nav className="flex flex-col gap-4">
-                    {navLinks.map((link) => (
-                      <Link
-                        key={link.href}
-                        href={link.href}
-                        onClick={() => setIsOpen(false)}
-                        className="text-lg font-medium text-foreground hover:text-primary transition-colors py-2"
-                      >
-                        {link.label}
-                      </Link>
-                    ))}
+                  {/* Mobile Nav */}
+                  <nav className="flex flex-col gap-2">
+                    {navLinks.map((link) => {
+                      const isActive = pathname === link.href
+                      return (
+                        <Link
+                          key={link.href}
+                          href={link.href}
+                          onClick={() => setIsOpen(false)}
+                          className={`rounded-lg px-4 py-3 text-base font-medium transition
+                            ${isActive
+                              ? 'bg-primary text-primary-foreground'
+                              : 'text-foreground hover:bg-muted'}
+                          `}
+                        >
+                          {link.label}
+                        </Link>
+                      )
+                    })}
                   </nav>
                 </div>
               </SheetContent>

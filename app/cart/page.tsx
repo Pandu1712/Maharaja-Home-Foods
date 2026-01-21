@@ -119,7 +119,7 @@ export default function CartPage() {
                           </div>
 
                           <button
-                            onClick={() => removeItem(item.id)}
+                            onClick={() => removeItem(item.id, item.weight)}
                             className="p-2 text-destructive hover:bg-destructive/10 rounded-lg"
                           >
                             <Trash2 className="h-5 w-5" />
@@ -132,7 +132,7 @@ export default function CartPage() {
                             {weightOptions.map((option) => (
                               <button
                                 key={option.value}
-                                onClick={() => updateWeight(item.id, option.value)}
+                                onClick={() => updateWeight(item.id, item.weight, option.value)}
                                 className={`px-3 py-1 text-xs font-medium rounded-lg ${
                                   item.weight === option.value
                                     ? 'bg-primary text-primary-foreground'
@@ -147,7 +147,7 @@ export default function CartPage() {
                           {/* Quantity */}
                           <div className="flex items-center gap-2 bg-muted rounded-lg p-1">
                             <button
-                              onClick={() => updateQuantity(item.id, item.quantity - 1)}
+                              onClick={() => updateQuantity(item.id, item.weight, item.quantity - 1)}
                               className="p-1.5 hover:bg-card rounded-md"
                             >
                               <Minus className="h-4 w-4" />
@@ -156,7 +156,7 @@ export default function CartPage() {
                               {item.quantity}
                             </span>
                             <button
-                              onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                              onClick={() =>updateQuantity(item.id, item.weight, item.quantity - 1)}
                               className="p-1.5 hover:bg-card rounded-md"
                             >
                               <Plus className="h-4 w-4" />

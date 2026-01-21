@@ -83,12 +83,13 @@ export function ProductCarousel() {
                 className="flex-shrink-0 w-72 bg-card rounded-2xl shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden snap-start group"
               >
                 <div className="relative aspect-square bg-muted">
-                  <Image
-                    src={categoryImages[product.category] || '/products/laddu.jpg'}
-                    alt={product.name}
-                    fill
-                    className="object-cover group-hover:scale-105 transition-transform duration-300"
-                  />
+                 <Image
+  src={product.image || categoryImages[product.category] || '/products/laddu.jpg'}
+  alt={product.name}
+  fill
+  className="object-cover group-hover:scale-105 transition-transform duration-300"
+/>
+
                   <div className="absolute top-3 right-3 px-3 py-1 bg-accent text-accent-foreground text-xs font-semibold rounded-full">
                     {product.category}
                   </div>

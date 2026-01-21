@@ -126,3 +126,18 @@
   }
 }
 
+body {
+  padding-top: 6rem; /* 8px bar + 64px header */
+}
+
+@media (min-width: 768px) {
+  body {
+    padding-top: 7rem; /* 8px bar + 80px header */
+  }
+}
+html,
+body {
+  height: 100%;
+  overflow-x: hidden;
+  overscroll-behavior-y: none;
+}

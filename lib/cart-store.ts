@@ -8,9 +8,9 @@ import { calculatePrice } from './products'
 interface CartStore {
   items: CartItem[]
   addItem: (product: Product, weight: number) => void
-  removeItem: (id: string) => void
-  updateQuantity: (id: string, quantity: number) => void
-  updateWeight: (id: string, weight: number) => void
+  removeItem: (id: string, weight: number) => void
+  updateQuantity: (id: string, weight: number, quantity: number) => void
+  updateWeight: (id: string, oldWeight: number, newWeight: number) => void
   clearCart: () => void
   getTotal: () => number
   getItemCount: () => number
@@ -20,14 +20,15 @@ export const useCartStore = create<CartStore>()(
   persist(
     (set, get) => ({
       items: [],
-      
-      addItem: (product: Product, weight: number) => {
+
+      /* ✅ ADD ITEM */
+      addItem: (product, weight) => {
         set((state) => {
-          const existingItem = state.items.find(
+          const existing = state.items.find(
             (item) => item.id === product.id && item.weight === weight
           )
-          
-          if (existingItem) {
+
+          if (existing) {
             return {
               items: state.items.map((item) =>
                 item.id === product.id && item.weight === weight
@@ -36,53 +37,84 @@ export const useCartStore = create<CartStore>()(
               ),
             }
           }
-          
+
           return {
-            items: [...state.items, { ...product, quantity: 1, weight }],
+            items: [...state.items, { ...product, weight, quantity: 1 }],
           }
         })
       },
-      
-      removeItem: (id: string) => {
+
+      /* ✅ REMOVE SINGLE VARIANT */
+      removeItem: (id, weight) => {
         set((state) => ({
-          items: state.items.filter((item) => item.id !== id),
+          items: state.items.filter(
+            (item) => !(item.id === id && item.weight === weight)
+          ),
         }))
       },
-      
-      updateQuantity: (id: string, quantity: number) => {
+
+      /* ✅ UPDATE QUANTITY (PER VARIANT) */
+      updateQuantity: (id, weight, quantity) => {
         if (quantity < 1) {
-          get().removeItem(id)
+          get().removeItem(id, weight)
           return
         }
-        
+
         set((state) => ({
           items: state.items.map((item) =>
-            item.id === id ? { ...item, quantity } : item
+            item.id === id && item.weight === weight
+              ? { ...item, quantity }
+              : item
           ),
         }))
       },
-      
-      updateWeight: (id: string, weight: number) => {
-        set((state) => ({
-          items: state.items.map((item) =>
-            item.id === id ? { ...item, weight } : item
-          ),
-        }))
+
+      /* ✅ UPDATE WEIGHT (PER VARIANT) */
+      updateWeight: (id, oldWeight, newWeight) => {
+        set((state) => {
+          // If same variant already exists → merge
+          const exists = state.items.find(
+            (item) => item.id === id && item.weight === newWeight
+          )
+
+          if (exists) {
+            return {
+              items: state.items
+                .map((item) => {
+                  if (item.id === id && item.weight === oldWeight) return null
+                  if (item.id === id && item.weight === newWeight) {
+                    return { ...item, quantity: item.quantity + 1 }
+                  }
+                  return item
+                })
+                .filter(Boolean) as CartItem[],
+            }
+          }
+
+          return {
+            items: state.items.map((item) =>
+              item.id === id && item.weight === oldWeight
+                ? { ...item, weight: newWeight }
+                : item
+            ),
+          }
+        })
       },
-      
-      clearCart: () => {
-        set({ items: [] })
-      },
-      
-      getTotal: () => {
-        return get().items.reduce((total, item) => {
-          return total + calculatePrice(item.price, item.weight) * item.quantity
-        }, 0)
-      },
-      
-      getItemCount: () => {
-        return get().items.reduce((count, item) => count + item.quantity, 0)
-      },
+
+      /* ✅ CLEAR CART */
+      clearCart: () => set({ items: [] }),
+
+      /* ✅ TOTAL PRICE */
+      getTotal: () =>
+        get().items.reduce(
+          (total, item) =>
+            total + calculatePrice(item.price, item.weight) * item.quantity,
+          0
+        ),
+
+      /* ✅ TOTAL ITEM COUNT */
+      getItemCount: () =>
+        get().items.reduce((count, item) => count + item.quantity, 0),
     }),
     {
       name: 'maharaja-cart',

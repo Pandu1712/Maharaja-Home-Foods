@@ -1,8 +1,7 @@
 'use client'
 
-import React from "react"
+import React from 'react'
 import Image from 'next/image'
-
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
@@ -13,7 +12,13 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { Label } from '@/components/ui/label'
-import { ArrowLeft, ShoppingBag, MapPin, MessageCircle, CheckCircle } from 'lucide-react'
+import {
+  ArrowLeft,
+  ShoppingBag,
+  MapPin,
+  MessageCircle,
+  CheckCircle,
+} from 'lucide-react'
 import { useCartStore } from '@/lib/cart-store'
 import { calculatePrice, businessInfo, categories } from '@/lib/products'
 
@@ -21,6 +26,7 @@ export default function CheckoutPage() {
   const router = useRouter()
   const { items, getTotal, clearCart } = useCartStore()
   const [mounted, setMounted] = useState(false)
+
   const [formData, setFormData] = useState({
     name: '',
     doorNo: '',
@@ -35,16 +41,21 @@ export default function CheckoutPage() {
     setMounted(true)
   }, [])
 
+  /** ✅ DELIVERY LOGIC */
+  const deliveryCharge = getTotal() >= 1000 ? 0 : 100
+  const finalTotal = getTotal() + deliveryCharge
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
 
-    // Build order details
-    const orderItems = items.map((item) => {
-      const price = calculatePrice(item.price, item.weight)
-      const total = price * item.quantity
-      const weightLabel = item.weight >= 1000 ? '1 Kg' : `${item.weight}g`
-      return `- ${item.name} (${weightLabel}) x ${item.quantity} = Rs.${total}`
-    }).join('\n')
+    const orderItems = items
+      .map((item) => {
+        const price = calculatePrice(item.price, item.weight)
+        const total = price * item.quantity
+        const weightLabel = item.weight >= 1000 ? '1 Kg' : `${item.weight}g`
+        return `- ${item.name} (${weightLabel}) x ${item.quantity} = Rs.${total}`
+      })
+      .join('\n')
 
     const whatsappMessage = `*New Order - Maharaja Home Foods*
 
@@ -60,62 +71,50 @@ Location: ${formData.location || 'N/A'}
 *Order Details:*
 ${orderItems}
 
-*Total Amount: Rs.${getTotal()}*
+Subtotal: Rs.${getTotal()}
+Delivery: Rs.${deliveryCharge}
+*Final Total: Rs.${finalTotal}*
+
+${
+  deliveryCharge === 0
+    ? '*Free Delivery Applied (Orders above ₹1000)*'
+    : '*Delivery Charge ₹100 applied*'
+}
 
 Thank you for ordering!`
 
-    const whatsappUrl = `https://wa.me/91${businessInfo.phone}?text=${encodeURIComponent(whatsappMessage)}`
-    
-    // Clear cart and redirect to WhatsApp
+    const whatsappUrl = `https://wa.me/91${businessInfo.phone}?text=${encodeURIComponent(
+      whatsappMessage
+    )}`
+
     clearCart()
     window.open(whatsappUrl, '_blank')
     router.push('/order-success')
   }
 
-const getCategoryImage = (category: string) => {
-  const cat = categories.find((c) => c.id === category)
-  return cat?.image || '/categories/sweets.jpg'
-}
-
+  const getCategoryImage = (category: string) => {
+    const cat = categories.find((c) => c.id === category)
+    return cat?.image || '/categories/sweets.jpg'
+  }
 
   if (!mounted) {
-    return (
-      <main>
-        <Header />
-        <section className="pt-28 pb-20 bg-background min-h-screen">
-          <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
-            <div className="text-center py-20">
-              <p className="text-muted-foreground">Loading checkout...</p>
-            </div>
-          </div>
-        </section>
-        <Footer />
-      </main>
-    )
+    return null
   }
 
   if (items.length === 0) {
     return (
       <main>
         <Header />
-        <section className="pt-28 pb-20 bg-background min-h-screen">
-          <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
-            <div className="text-center py-20">
-              <div className="inline-flex items-center justify-center w-24 h-24 bg-muted rounded-full mb-6">
-                <ShoppingBag className="h-12 w-12 text-muted-foreground" />
-              </div>
-              <h1 className="font-sans text-3xl font-bold text-foreground mb-4">Your Cart is Empty</h1>
-              <p className="text-muted-foreground mb-8">
-                Add some products to your cart before checking out.
-              </p>
-              <Button asChild size="lg" className="bg-primary hover:bg-primary/90 text-primary-foreground">
-                <Link href="/products">Browse Products</Link>
-              </Button>
-            </div>
+        <section className="pt-28 pb-20 min-h-screen flex items-center justify-center">
+          <div className="text-center">
+            <ShoppingBag className="h-14 w-14 mx-auto mb-4 text-muted-foreground" />
+            <h2 className="text-2xl font-bold mb-2">Your Cart is Empty</h2>
+            <Button asChild>
+              <Link href="/products">Browse Products</Link>
+            </Button>
           </div>
         </section>
         <Footer />
-        <StickyButtons />
       </main>
     )
   }
@@ -123,200 +122,119 @@ const getCategoryImage = (category: string) => {
   return (
     <main>
       <Header />
-      
+
       <section className="pt-28 pb-20 bg-background min-h-screen">
-        <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
-          {/* Back Button */}
-          <Link href="/cart" className="inline-flex items-center text-muted-foreground hover:text-foreground mb-8">
-            <ArrowLeft className="mr-2 h-4 w-4" />
-            Back to Cart
+        <div className="mx-auto max-w-6xl px-4">
+          <Link
+            href="/cart"
+            className="inline-flex items-center mb-8 text-muted-foreground hover:text-foreground"
+          >
+            <ArrowLeft className="mr-2 h-4 w-4" /> Back to Cart
           </Link>
 
           <div className="grid lg:grid-cols-2 gap-12">
-            {/* Delivery Form */}
-            <div>
-              <div className="mb-8">
-                <h1 className="font-sans text-3xl font-bold text-foreground mb-2">Checkout</h1>
-                <p className="text-muted-foreground">Enter your delivery details to complete your order</p>
+            {/* FORM */}
+            <form onSubmit={handleSubmit} className="space-y-6">
+              <div className="bg-card p-6 rounded-2xl shadow-md space-y-4">
+                <div className="flex items-center gap-2 border-b pb-3">
+                  <MapPin className="h-5 w-5 text-primary" />
+                  <h2 className="font-semibold text-lg">Delivery Address</h2>
+                </div>
+
+                {['name', 'phone', 'doorNo', 'area', 'pincode', 'landmark'].map(
+                  (field) => (
+                    <Input
+                      key={field}
+                      placeholder={field.toUpperCase()}
+                      value={(formData as any)[field]}
+                      onChange={(e) =>
+                        setFormData({
+                          ...formData,
+                          [field]: e.target.value,
+                        })
+                      }
+                      required={field !== 'landmark'}
+                    />
+                  )
+                )}
+
+                <Textarea
+                  placeholder="Google Maps Location (Optional)"
+                  value={formData.location}
+                  onChange={(e) =>
+                    setFormData({ ...formData, location: e.target.value })
+                  }
+                />
               </div>
 
-              <form onSubmit={handleSubmit} className="space-y-6">
-                <div className="bg-card rounded-2xl p-6 shadow-md space-y-6">
-                  <div className="flex items-center gap-3 pb-4 border-b border-border">
-                    <MapPin className="h-6 w-6 text-primary" />
-                    <h2 className="font-sans text-xl font-semibold text-foreground">Delivery Address</h2>
-                  </div>
+              <Button
+                type="submit"
+                size="lg"
+                className="w-full bg-[#25D366] text-white"
+              >
+                <MessageCircle className="mr-2 h-5 w-5" />
+                Place Order via WhatsApp
+              </Button>
+            </form>
 
-                  <div className="space-y-2">
-                    <Label htmlFor="name">Full Name *</Label>
-                    <Input
-                      id="name"
-                      type="text"
-                      placeholder="Enter your full name"
-                      value={formData.name}
-                      onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                      required
-                      className="bg-background"
-                    />
-                  </div>
+            {/* SUMMARY */}
+            <div className="bg-card p-6 rounded-2xl shadow-md sticky top-28">
+              <h2 className="font-bold text-xl mb-6">Order Summary</h2>
 
-                  <div className="space-y-2">
-                    <Label htmlFor="phone">Mobile Number *</Label>
-                    <Input
-                      id="phone"
-                      type="tel"
-                      placeholder="Enter your mobile number"
-                      value={formData.phone}
-                      onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                      required
-                      className="bg-background"
-                    />
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="doorNo">D.No / House No *</Label>
-                      <Input
-                        id="doorNo"
-                        type="text"
-                        placeholder="Door number"
-                        value={formData.doorNo}
-                        onChange={(e) => setFormData({ ...formData, doorNo: e.target.value })}
-                        required
-                        className="bg-background"
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="pincode">Pincode *</Label>
-                      <Input
-                        id="pincode"
-                        type="text"
-                        placeholder="533262"
-                        value={formData.pincode}
-                        onChange={(e) => setFormData({ ...formData, pincode: e.target.value })}
-                        required
-                        className="bg-background"
-                      />
-                    </div>
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="area">Area / Street / Village *</Label>
-                    <Input
-                      id="area"
-                      type="text"
-                      placeholder="Enter your area or street name"
-                      value={formData.area}
-                      onChange={(e) => setFormData({ ...formData, area: e.target.value })}
-                      required
-                      className="bg-background"
-                    />
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="landmark">Landmark (Optional)</Label>
-                    <Input
-                      id="landmark"
-                      type="text"
-                      placeholder="Near temple, opposite school, etc."
-                      value={formData.landmark}
-                      onChange={(e) => setFormData({ ...formData, landmark: e.target.value })}
-                      className="bg-background"
-                    />
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="location">Google Maps Location Link (Optional)</Label>
-                    <Textarea
-                      id="location"
-                      placeholder="Paste your Google Maps location link here"
-                      value={formData.location}
-                      onChange={(e) => setFormData({ ...formData, location: e.target.value })}
-                      className="bg-background resize-none"
-                      rows={2}
-                    />
-                    <p className="text-xs text-muted-foreground">
-                      Share your location from Google Maps for easier delivery
-                    </p>
-                  </div>
-                </div>
-
-                <Button type="submit" size="lg" className="w-full bg-[#25D366] hover:bg-[#25D366]/90 text-white">
-                  <MessageCircle className="mr-2 h-5 w-5" />
-                  Place Order via WhatsApp
-                </Button>
-
-                <p className="text-xs text-center text-muted-foreground">
-                  Your order will be sent to WhatsApp for confirmation and payment details
-                </p>
-              </form>
-            </div>
-
-            {/* Order Summary */}
-            <div>
-              <div className="bg-card rounded-2xl p-6 shadow-md sticky top-28">
-                <h2 className="font-sans text-xl font-bold text-foreground mb-6">Order Summary</h2>
-                
-                <div className="space-y-4 max-h-[400px] overflow-y-auto pr-2">
-                  {items.map((item) => {
-                    const itemPrice = calculatePrice(item.price, item.weight)
-                    const totalItemPrice = itemPrice * item.quantity
-                    const weightLabel = item.weight >= 1000 ? '1 Kg' : `${item.weight}g`
-
-                    return (
-                      <div
-                        key={`${item.id}-${item.weight}`}
-                        className="flex gap-4 pb-4 border-b border-border last:border-b-0"
-                      >
-                       <div className="relative w-14 h-14 bg-muted rounded-xl overflow-hidden flex-shrink-0">
-  <Image
-    src={getCategoryImage(item.category)}
-    alt={item.name}
-    fill
-    className="object-cover"
-  />
-</div>
-
-                        <div className="flex-1 min-w-0">
-                          <h3 className="font-medium text-foreground text-sm">{item.name}</h3>
-                          <p className="text-xs text-muted-foreground">
-                            {weightLabel} x {item.quantity}
-                          </p>
-                        </div>
-                        <div className="text-right">
-                          <p className="font-semibold text-primary">₹{totalItemPrice}</p>
-                        </div>
+              <div className="space-y-4">
+                {items.map((item) => {
+                  const itemTotal =
+                    calculatePrice(item.price, item.weight) * item.quantity
+                  return (
+                    <div
+                      key={`${item.id}-${item.weight}`}
+                      className="flex gap-3 border-b pb-3"
+                    >
+                      <div className="relative w-12 h-12 rounded-lg overflow-hidden">
+                        <Image
+                          src={getCategoryImage(item.category)}
+                          alt={item.name}
+                          fill
+                          className="object-cover"
+                        />
                       </div>
-                    )
-                  })}
-                </div>
-
-                <div className="mt-6 pt-6 border-t border-border space-y-3">
-                  <div className="flex justify-between text-muted-foreground">
-                    <span>Subtotal</span>
-                    <span>₹{getTotal()}</span>
-                  </div>
-                  <div className="flex justify-between text-muted-foreground">
-                    <span>Delivery</span>
-                    <span className="text-accent font-medium">Free</span>
-                  </div>
-                  <div className="flex justify-between text-xl font-bold text-foreground pt-3 border-t border-border">
-                    <span>Total</span>
-                    <span className="text-primary">₹{getTotal()}</span>
-                  </div>
-                </div>
-
-                <div className="mt-6 p-4 bg-secondary rounded-xl">
-                  <div className="flex items-start gap-3">
-                    <CheckCircle className="h-5 w-5 text-accent mt-0.5" />
-                    <div className="text-sm">
-                      <p className="font-medium text-foreground">Secure Ordering</p>
-                      <p className="text-muted-foreground">
-                        Your order will be confirmed via WhatsApp. Payment can be made upon delivery or through UPI.
-                      </p>
+                      <div className="flex-1">
+                        <p className="font-medium">{item.name}</p>
+                        <p className="text-xs text-muted-foreground">
+                          {item.weight >= 1000 ? '1 Kg' : `${item.weight}g`} ×{' '}
+                          {item.quantity}
+                        </p>
+                      </div>
+                      <p className="font-semibold">₹{itemTotal}</p>
                     </div>
-                  </div>
+                  )
+                })}
+              </div>
+
+              <div className="mt-6 space-y-2 text-sm">
+                <div className="flex justify-between">
+                  <span>Subtotal</span>
+                  <span>₹{getTotal()}</span>
                 </div>
+                <div className="flex justify-between">
+                  <span>Delivery</span>
+                  <span>
+                    {deliveryCharge === 0 ? 'FREE' : `₹${deliveryCharge}`}
+                  </span>
+                </div>
+                <div className="flex justify-between font-bold text-lg pt-3 border-t">
+                  <span>Total</span>
+                  <span>₹{finalTotal}</span>
+                </div>
+              </div>
+
+              <p className="mt-4 text-xs text-center text-green-700 font-medium">
+                🎉 Orders above ₹1000 get FREE delivery
+              </p>
+
+              <div className="mt-4 flex gap-2 text-xs text-muted-foreground">
+                <CheckCircle className="h-4 w-4 text-accent" />
+                Secure WhatsApp ordering & UPI supported
               </div>
             </div>
           </div>

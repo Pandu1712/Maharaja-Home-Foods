@@ -43,12 +43,22 @@ export function Header() {
     <header className="fixed sticky top-0 inset-x-0 z-50">
       {/* ✅ TOP INFO BAR */}
     <div className="
-  bg-[#6B1D1D] text-white font-medium text-xs md:text-sm
-  flex items-center justify-center text-center
-  h-12 md:h-8
-  px-2
+  bg-gradient-to-r from-green-600 to-green-500
+  text-white
+  flex items-center justify-center gap-2
+  text-sm md:text-base
+  font-semibold
+  h-14 md:h-10
+  px-4
+  shadow-md
 ">
-  Above ₹1000 Order Get Free Delivery
+  <span className="text-lg">🚚</span>
+  <span>
+    Orders above <span className="font-bold underline">₹1000</span> get
+    <span className="ml-1 bg-white text-green-700 px-2 py-0.5 rounded-md font-bold">
+      FREE DELIVERY
+    </span>
+  </span>
 </div>
 
 

@@ -12,8 +12,14 @@ import { useCartStore } from '@/lib/cart-store'
 import { weightOptions, calculatePrice, categories } from '@/lib/products'
 
 export default function CartPage() {
-  const { items, updateQuantity, updateWeight, removeItem, getTotal, clearCart } =
-    useCartStore()
+  const {
+    items,
+    updateQuantity,
+    updateWeight,
+    removeItem,
+    getTotal,
+    clearCart,
+  } = useCartStore()
 
   const [mounted, setMounted] = useState(false)
 
@@ -26,7 +32,7 @@ export default function CartPage() {
       <main>
         <Header />
         <section className="pt-28 pb-20 bg-background min-h-screen">
-          <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8 text-center py-20">
+          <div className="mx-auto max-w-4xl px-4 text-center py-20">
             <p className="text-muted-foreground">Loading cart...</p>
           </div>
         </section>
@@ -35,7 +41,6 @@ export default function CartPage() {
     )
   }
 
-  // Get category image
   const getCategoryImage = (category: string) => {
     const cat = categories.find((c) => c.id === category)
     return cat?.image || '/categories/sweets.jpg'
@@ -46,17 +51,15 @@ export default function CartPage() {
       <main>
         <Header />
         <section className="pt-28 pb-20 bg-background min-h-screen">
-          <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8 text-center py-20">
+          <div className="mx-auto max-w-4xl px-4 text-center py-20">
             <div className="inline-flex items-center justify-center w-24 h-24 bg-muted rounded-full mb-6">
               <ShoppingBag className="h-12 w-12 text-muted-foreground" />
             </div>
-            <h1 className="font-sans text-3xl font-bold text-foreground mb-4">
-              Your Cart is Empty
-            </h1>
+            <h1 className="text-3xl font-bold mb-4">Your Cart is Empty</h1>
             <p className="text-muted-foreground mb-8">
               Looks like you haven't added any products yet.
             </p>
-            <Button asChild size="lg" className="bg-primary hover:bg-primary/90">
+            <Button asChild size="lg">
               <Link href="/products">
                 Browse Products <ArrowRight className="ml-2 h-5 w-5" />
               </Link>
@@ -74,13 +77,12 @@ export default function CartPage() {
       <Header />
 
       <section className="pt-28 pb-20 bg-background min-h-screen">
-        <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
-          {/* Header */}
+        <div className="mx-auto max-w-4xl px-4">
           <div className="mb-8">
-            <h1 className="font-sans text-4xl font-bold text-foreground">
-              Shopping Cart
-            </h1>
-            <p className="text-muted-foreground">{items.length} items in your cart</p>
+            <h1 className="text-4xl font-bold">Shopping Cart</h1>
+            <p className="text-muted-foreground">
+              {items.length} items in your cart
+            </p>
           </div>
 
           <div className="grid lg:grid-cols-3 gap-8">
@@ -96,8 +98,7 @@ export default function CartPage() {
                     className="bg-card rounded-2xl p-6 shadow-md"
                   >
                     <div className="flex gap-4">
-                      {/* Product Image */}
-                      <div className="relative w-20 h-20 rounded-xl overflow-hidden bg-muted flex-shrink-0">
+                      <div className="relative w-20 h-20 rounded-xl overflow-hidden bg-muted">
                         <Image
                           src={getCategoryImage(item.category)}
                           alt={item.name}
@@ -106,20 +107,19 @@ export default function CartPage() {
                         />
                       </div>
 
-                      {/* Details */}
                       <div className="flex-1">
-                        <div className="flex justify-between gap-4">
+                        <div className="flex justify-between">
                           <div>
-                            <h3 className="font-sans font-semibold text-foreground">
-                              {item.name}
-                            </h3>
+                            <h3 className="font-semibold">{item.name}</h3>
                             <p className="text-sm text-muted-foreground">
                               {item.description}
                             </p>
                           </div>
 
                           <button
-                            onClick={() => removeItem(item.id, item.weight)}
+                            onClick={() =>
+                              removeItem(item.id, item.weight)
+                            }
                             className="p-2 text-destructive hover:bg-destructive/10 rounded-lg"
                           >
                             <Trash2 className="h-5 w-5" />
@@ -132,11 +132,17 @@ export default function CartPage() {
                             {weightOptions.map((option) => (
                               <button
                                 key={option.value}
-                                onClick={() => updateWeight(item.id, item.weight, option.value)}
-                                className={`px-3 py-1 text-xs font-medium rounded-lg ${
+                                onClick={() =>
+                                  updateWeight(
+                                    item.id,
+                                    item.weight,
+                                    option.value
+                                  )
+                                }
+                                className={`px-3 py-1 text-xs rounded-lg ${
                                   item.weight === option.value
                                     ? 'bg-primary text-primary-foreground'
-                                    : 'bg-muted text-muted-foreground hover:bg-muted/80'
+                                    : 'bg-muted text-muted-foreground'
                                 }`}
                               >
                                 {option.label}
@@ -147,16 +153,30 @@ export default function CartPage() {
                           {/* Quantity */}
                           <div className="flex items-center gap-2 bg-muted rounded-lg p-1">
                             <button
-                              onClick={() => updateQuantity(item.id, item.weight, item.quantity - 1)}
+                              onClick={() =>
+                                updateQuantity(
+                                  item.id,
+                                  item.weight,
+                                  item.quantity - 1
+                                )
+                              }
                               className="p-1.5 hover:bg-card rounded-md"
                             >
                               <Minus className="h-4 w-4" />
                             </button>
+
                             <span className="w-8 text-center font-medium">
                               {item.quantity}
                             </span>
+
                             <button
-                              onClick={() =>updateQuantity(item.id, item.weight, item.quantity - 1)}
+                              onClick={() =>
+                                updateQuantity(
+                                  item.id,
+                                  item.weight,
+                                  item.quantity + 1
+                                )
+                              }
                               className="p-1.5 hover:bg-card rounded-md"
                             >
                               <Plus className="h-4 w-4" />
@@ -165,7 +185,7 @@ export default function CartPage() {
 
                           {/* Price */}
                           <div className="ml-auto">
-                            <p className="font-sans text-lg font-bold text-primary">
+                            <p className="text-lg font-bold text-primary">
                               ₹{totalItemPrice}
                             </p>
                             <p className="text-xs text-muted-foreground">
@@ -183,7 +203,7 @@ export default function CartPage() {
                 <Button
                   variant="outline"
                   onClick={clearCart}
-                  className="text-destructive border-destructive hover:bg-destructive hover:text-destructive-foreground"
+                  className="text-destructive border-destructive"
                 >
                   <Trash2 className="mr-2 h-4 w-4" />
                   Clear Cart
@@ -192,26 +212,26 @@ export default function CartPage() {
             </div>
 
             {/* Summary */}
-            <div className="lg:col-span-1">
+            <div>
               <div className="bg-card rounded-2xl p-6 shadow-md sticky top-28">
-                <h2 className="font-sans text-xl font-bold mb-6">Order Summary</h2>
+                <h2 className="text-xl font-bold mb-6">Order Summary</h2>
 
                 <div className="space-y-4 mb-6">
                   <div className="flex justify-between text-muted-foreground">
                     <span>Subtotal</span>
                     <span>₹{getTotal()}</span>
                   </div>
-                  <div className="flex justify-between text-muted-foreground">
+                  {/* <div className="flex justify-between text-muted-foreground">
                     <span>Delivery</span>
                     <span className="text-accent font-medium">Free</span>
-                  </div>
-                  <div className="border-t border-border pt-4 flex justify-between font-bold">
+                  </div> */}
+                  <div className="border-t pt-4 flex justify-between font-bold">
                     <span>Total</span>
                     <span className="text-primary">₹{getTotal()}</span>
                   </div>
                 </div>
 
-                <Button asChild size="lg" className="w-full bg-primary hover:bg-primary/90">
+                <Button asChild size="lg" className="w-full">
                   <Link href="/checkout">
                     Proceed to Checkout <ArrowRight className="ml-2 h-5 w-5" />
                   </Link>

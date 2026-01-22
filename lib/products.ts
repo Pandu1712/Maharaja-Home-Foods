@@ -62,7 +62,7 @@ export const products: Product[] = [
   { id: 'agra-mixture', name: 'Agra Mixture', price: 440, unit: 'kg', category: 'savouries', image: 'https://mirchi.com/os/cdn/content/images/agra%20mixture%20ambica%20sweets_medium341292.webp', description: 'Famous Agra style mixture' },
   { id: 'janthikalu', name: 'Janthikalu', price: 600, unit: 'kg', category: 'savouries', image: 'https://res.cloudinary.com/dplyldp8e/image/upload/v1768970391/WhatsApp_Image_2026-01-20_at_21.13.52_ei3hbi.jpg', description: 'Traditional spiral snacks' },
   { id: 'chegodilu', name: 'Chegodilu', price: 440, unit: 'kg', category: 'savouries', image: 'https://southindianstore.com/wp-content/uploads/2020/11/chegodilu.jpg', description: 'Crispy ring-shaped snack' },
-  { id: 'ribbon-pakoda', name: 'Ribbon Pakoda', price: 440, unit: 'kg', category: 'savouries', image: 'https://www.vegrecipesofindia.com/wp-content/uploads/2018/09/ribbon-pakoda-recipe-1.jpg', description: 'Crunchy ribbon-shaped pakoda' },
+  { id: 'ribbon-pakoda', name: 'Ribbon Pakoda', price: 440, unit: 'kg', category: 'savouries', image: 'https://res.cloudinary.com/dgky6sudx/image/upload/WhatsApp_Image_2026-01-21_at_20.59.52_allxod.jpg', description: 'Crunchy ribbon-shaped pakoda' },
   
   // PICKLES (price per 250g)
   { id: 'avakaya', name: 'Avakaya (Mango)', price: 580, unit: 'kg', category: 'pickles', image: 'https://res.cloudinary.com/dplyldp8e/image/upload/v1768970393/WhatsApp_Image_2026-01-20_at_21.18.53_hp90j4.jpg', description: 'Spicy Andhra mango pickle' },

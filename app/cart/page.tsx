@@ -100,11 +100,12 @@ export default function CartPage() {
                     <div className="flex gap-4">
                       <div className="relative w-20 h-20 rounded-xl overflow-hidden bg-muted">
                         <Image
-                          src={getCategoryImage(item.category)}
-                          alt={item.name}
-                          fill
-                          className="object-cover"
-                        />
+  src={item.image || getCategoryImage(item.category)}
+  alt={item.name}
+  fill
+  className="object-cover"
+/>
+
                       </div>
 
                       <div className="flex-1">
